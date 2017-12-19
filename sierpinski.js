@@ -1,8 +1,12 @@
 const Sierpinski = {
-  minSide             : 30,
-  perpendicularFactor : 1/2 * Math.tan(1/2 * Math.acos(1/Math.sqrt(3))),
+  showReal3D          : !!window.location.hash.match(/3d/),
+  minSide             : window.location.hash.match(/3d/) ? 10 : 30,
+  perpendicularFactor : 1/2 * Math.tan(1/2 * Math.acos(1/Math.sqrt(3))), // TODO - there's a mistake here, pyramid is slightly skewed
   sqrtOf2             : Math.sqrt(2),
   fillStyle           : "rgba(102,102,153,0.5)",
+  rotationPerDelta    : Math.PI / 360, // half degree per 1 delta wheel-event
+  pixelsBetweenEyes   : 110,
+  parallaxAngle       : 0.04 //radians
 };
 
 window.onload = function() {
@@ -21,18 +25,43 @@ window.onload = function() {
   ctx.fillStyle   = Sierpinski.fillStyle;
   ctx.scale(dpr, dpr);
 
-  const side  = width / (dpr * 2);
+  const side  = Sierpinski.showReal3D ? 120 : width / (dpr * 2);
   const x     = width / (dpr * 2);
   const y     = height / (dpr * 2);
   const z     = 0;
 
-  const tree = new SierpinskiTree();
-  tree.draw(ctx, side, {x: x, y: y, z: z}, {x: 0, y: 0, z: 0});
+  let x1 = x;
+  let x2;
+
+  if (Sierpinski.showReal3D) {
+    x1 = x + dpr * Sierpinski.pixelsBetweenEyes / 2;
+    x2 = x - dpr * Sierpinski.pixelsBetweenEyes / 2;
+  }
+
+  let tree1, tree2;
+
+  tree1 = new SierpinskiTree();
+  tree1.draw(ctx, side,
+    {x: Sierpinski.showReal3D ? x1 : x, y: y, z: z},
+    {x: 0, y: Sierpinski.showReal3D ? -Sierpinski.parallaxAngle/2 : 0, z: 0}
+  );
+
+  if (Sierpinski.showReal3D) {
+    tree2 = new SierpinskiTree();
+    tree2.draw(ctx, side,
+      {x: x2, y: y, z: z},
+      {x: 0, y: Sierpinski.parallaxAngle/2, z: 0}
+    );
+  }
 
   canvas.addEventListener('wheel', e => {
     e.preventDefault();
     ctx.clearRect(0, 0, width, height);
-    tree.draw(ctx, side, {x: x, y: y, z: z}, {x: Math.PI * e.deltaY / 360, y: Math.PI * e.deltaX / 360, z: 0});
+    const thetaX = Sierpinski.rotationPerDelta * e.deltaY;
+    const thetaY = Sierpinski.rotationPerDelta * e.deltaX;
+
+    tree1.draw(ctx, side, {x: x1, y: y, z: z}, {x: thetaX, y: thetaY, z: 0});
+    tree2 && tree2.draw(ctx, side, {x: x2, y: y, z: z}, {x: thetaX, y: thetaY, z: 0});
   });
 }
 
