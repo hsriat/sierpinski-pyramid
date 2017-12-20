@@ -70,7 +70,7 @@ class SierpinskiTree {
   constructor() {
     this.root       = new SierpinskiTreeNode();
     this.root.tree  = this;
-    this.rotation   = {x: 0, y: 0, z: 0};
+    this.rotation   = {x: -Math.PI, y: Math.PI, z: 0};
   }
 
   draw(ctx, side, pyramidCentre, rotation) {
