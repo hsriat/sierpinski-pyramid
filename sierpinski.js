@@ -1,8 +1,10 @@
 const Sierpinski = {
   showReal3D          : !!window.location.hash.match(/3d/),
   minSide             : window.location.hash.match(/3d/) ? 10 : 30,
-  perpendicularFactor : 1/2 * Math.tan(1/2 * Math.acos(1/Math.sqrt(3))), // TODO - there's a mistake here, pyramid is slightly skewed
-  sqrtOf2             : Math.sqrt(2),
+  sqrt1by3            : Math.sqrt(1/3),
+  sqrt3by8            : Math.sqrt(3/8),
+  sqrt1by12           : Math.sqrt(1/12),
+  sqrt1by24           : Math.sqrt(1/24),
   fillStyle           : "rgba(102,102,153,0.5)",
   rotationPerDelta    : Math.PI / 360, // half degree per 1 delta wheel-event
   pixelsBetweenEyes   : 110,
@@ -116,14 +118,16 @@ class SierpinskiTreeNode {
 
 class Pyramid {
   constructor(side, centre) {
-    const p1 = side * Sierpinski.perpendicularFactor;
-    const p2 = side / Sierpinski.sqrtOf2 - p1;
+    const l1 = side * Sierpinski.sqrt1by24;
+    const l2 = side * Sierpinski.sqrt3by8;
+    const l3 = side * Sierpinski.sqrt1by12;
+    const l4 = side * Sierpinski.sqrt1by3;
 
     this.vectors = [
-      [ centre.x - side/2, centre.y - p1, centre.z - p1 ],
-      [ centre.x + side/2, centre.y - p1, centre.z - p1 ],
-      [ centre.x, centre.y - p1, centre.z + p2 ],
-      [ centre.x, centre.y + p2, centre.z ]
+      [ centre.x - side/2, centre.y - l1, centre.z - l3 ],
+      [ centre.x + side/2, centre.y - l1, centre.z - l3 ],
+      [ centre.x, centre.y - l1, centre.z + l4 ],
+      [ centre.x, centre.y + l2, centre.z ]
     ].map(arrow => new Vector([centre.x, centre.y, centre.z], arrow));
   }
 
