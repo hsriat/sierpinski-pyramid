@@ -27,7 +27,7 @@ window.onload = function() {
   ctx.fillStyle   = Sierpinski.fillStyle;
   ctx.scale(dpr, dpr);
 
-  const side  = Sierpinski.showReal3D ? 120 : width / (dpr * 2);
+  const side  = Sierpinski.showReal3D ? 120 : Math.min(height, width) / (dpr * 1.5);
   const x     = width / (dpr * 2);
   const y     = height / (dpr * 2);
   const z     = 0;
@@ -44,7 +44,7 @@ window.onload = function() {
 
   tree1 = new SierpinskiTree();
   tree1.draw(ctx, side,
-    {x: Sierpinski.showReal3D ? x1 : x, y: y, z: z},
+    {x: x1, y: y, z: z},
     {x: 0, y: Sierpinski.showReal3D ? -Sierpinski.parallaxAngle/2 : 0, z: 0}
   );
 
