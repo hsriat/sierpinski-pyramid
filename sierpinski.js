@@ -7,7 +7,8 @@ const Sierpinski = {
   sqrt1by24           : Math.sqrt(1/24),
   fillStyle           : "rgba(102,102,153,0.5)",
   rotationPerDelta    : Math.PI / 360, // half degree per 1 delta wheel-event
-  pixelsBetweenEyes   : 110,
+  pixelsBetweenEyes   : 220,
+  real3DSide          : 120,
   parallaxAngle       : 0.04 //radians
 };
 
@@ -15,29 +16,29 @@ window.onload = function() {
   const canvas  = document.body.appendChild(document.createElement('canvas'));
 
   const dpr     = window.devicePixelRatio || 1;
-  const height  = window.innerHeight * dpr;
-  const width   = window.innerWidth * dpr;
+  const height  = window.innerHeight;
+  const width   = window.innerWidth;
 
-  canvas.height       = height;
-  canvas.width        = width;
-  canvas.style.height = `${height / dpr}px`;
-  canvas.style.width  = `${width / dpr}px`;
+  canvas.height       = height * dpr;
+  canvas.width        = width * dpr;
+  canvas.style.height = `${height}px`;
+  canvas.style.width  = `${width}px`;
 
   const ctx       = canvas.getContext("2d");
   ctx.fillStyle   = Sierpinski.fillStyle;
   ctx.scale(dpr, dpr);
 
-  const side  = Sierpinski.showReal3D ? 120 : Math.min(height, width) / (dpr * 1.5);
-  const x     = width / (dpr * 2);
-  const y     = height / (dpr * 2);
+  const side  = Sierpinski.showReal3D ? Sierpinski.real3DSide : Math.min(height, width) / 1.5;
+  const x     = width / 2;
+  const y     = height / 2;
   const z     = 0;
 
   let x1 = x;
   let x2;
 
   if (Sierpinski.showReal3D) {
-    x1 = x + dpr * Sierpinski.pixelsBetweenEyes / 2;
-    x2 = x - dpr * Sierpinski.pixelsBetweenEyes / 2;
+    x1 = x + Sierpinski.pixelsBetweenEyes / 2;
+    x2 = x - Sierpinski.pixelsBetweenEyes / 2;
   }
 
   let tree1, tree2;
