@@ -1,16 +1,26 @@
 const Sierpinski = {
   showReal3D: !!window.location.hash.match(/3d/),
-  minSide: window.location.hash.match(/3d/) ? 10 : 30,
+  showAnaglyph3D: !!window.location.hash.match(/ag/),
+  minSide: 30,
   sqrt1by3: Math.sqrt(1 / 3),
   sqrt3by8: Math.sqrt(3 / 8),
   sqrt1by12: Math.sqrt(1 / 12),
   sqrt1by24: Math.sqrt(1 / 24),
-  fillStyle: "rgba(102,102,153,0.5)",
+  colour: "rgba(102,102,153,0.5)",
+  agColours: ["rgba(255, 26, 117, 0.2)", "rgba(0, 200, 200, 0.2)"],
   rotationPerDelta: Math.PI / 360, // half degree per 1 delta wheel-event
   pixelsBetweenEyes: 220,
   real3DSide: 120,
   parallaxAngle: 0.04 //radians
 };
+
+if (Sierpinski.showAnaglyph3D) {
+  Sierpinski.showReal3D = false;
+  Sierpinski.pixelsBetweenEyes = 0;
+}
+if (Sierpinski.showReal3D) {
+  Sierpinski.minSide = 10;
+}
 
 window.onload = function () {
   const canvas = document.body.appendChild(document.createElement('canvas'));
@@ -25,7 +35,6 @@ window.onload = function () {
   canvas.style.width = `${width}px`;
 
   const ctx = canvas.getContext("2d");
-  ctx.fillStyle = Sierpinski.fillStyle;
   ctx.scale(dpr, dpr);
 
   const side = Sierpinski.showReal3D ? Sierpinski.real3DSide : Math.min(height, width) / 1.5;
@@ -36,21 +45,21 @@ window.onload = function () {
   let x1 = x;
   let x2;
 
-  if (Sierpinski.showReal3D) {
+  if (Sierpinski.showReal3D || Sierpinski.showAnaglyph3D) {
     x1 = x + Sierpinski.pixelsBetweenEyes / 2;
     x2 = x - Sierpinski.pixelsBetweenEyes / 2;
   }
 
   let tree1, tree2;
 
-  tree1 = new SierpinskiTree();
+  tree1 = new SierpinskiTree(Sierpinski.showAnaglyph3D ? Sierpinski.agColours[0] : Sierpinski.colour);
   tree1.draw(ctx, side,
     { x: x1, y: y, z: z },
-    { x: 0, y: Sierpinski.showReal3D ? -Sierpinski.parallaxAngle / 2 : 0, z: 0 }
+    { x: 0, y: Sierpinski.showReal3D || Sierpinski.showAnaglyph3D ? -Sierpinski.parallaxAngle / 2 : 0, z: 0 }
   );
 
-  if (Sierpinski.showReal3D) {
-    tree2 = new SierpinskiTree();
+  if (Sierpinski.showReal3D || Sierpinski.showAnaglyph3D) {
+    tree2 = new SierpinskiTree(Sierpinski.showAnaglyph3D ? Sierpinski.agColours[1] : Sierpinski.colour);
     tree2.draw(ctx, side,
       { x: x2, y: y, z: z },
       { x: 0, y: Sierpinski.parallaxAngle / 2, z: 0 }
@@ -70,10 +79,11 @@ window.onload = function () {
 
 
 class SierpinskiTree {
-  constructor() {
+  constructor(colour) {
     this.root = new SierpinskiTreeNode();
     this.root.tree = this;
     this.rotation = { x: -Math.PI, y: Math.PI, z: 0 };
+    this.colour = colour;
   }
 
   draw(ctx, side, pyramidCentre, rotation) {
@@ -100,7 +110,7 @@ class SierpinskiTreeNode {
       this.childNodes.forEach((c, i) => c.draw(ctx, side / 2, pyramid.vectors[i], rotationCentre, rotation));
     } else {
       this.removeChildren();
-      new Pyramid(side, pyramidCentre).moveCentreTo(rotationCentre).rotate(rotation).draw(ctx);
+      new Pyramid(side, pyramidCentre).moveCentreTo(rotationCentre).rotate(rotation).draw(ctx, this.tree.colour);
     }
   }
 
@@ -142,13 +152,14 @@ class Pyramid {
     return this;
   }
 
-  draw(ctx) {
+  draw(ctx, colour) {
     this.vectors.forEach((v, i, arr) => {
       ctx.beginPath();
       ctx.moveTo(v.x, v.y);
       ctx.lineTo(arr[(i + 1) % 4].x, arr[(i + 1) % 4].y);
       ctx.lineTo(arr[(i + 2) % 4].x, arr[(i + 2) % 4].y);
       ctx.lineTo(v.x, v.y);
+      ctx.fillStyle = colour;
       ctx.fill();
     });
     return this;
