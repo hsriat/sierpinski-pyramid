@@ -1,37 +1,37 @@
 const Sierpinski = {
-  showReal3D          : !!window.location.hash.match(/3d/),
-  minSide             : window.location.hash.match(/3d/) ? 10 : 30,
-  sqrt1by3            : Math.sqrt(1/3),
-  sqrt3by8            : Math.sqrt(3/8),
-  sqrt1by12           : Math.sqrt(1/12),
-  sqrt1by24           : Math.sqrt(1/24),
-  fillStyle           : "rgba(102,102,153,0.5)",
-  rotationPerDelta    : Math.PI / 360, // half degree per 1 delta wheel-event
-  pixelsBetweenEyes   : 220,
-  real3DSide          : 120,
-  parallaxAngle       : 0.04 //radians
+  showReal3D: !!window.location.hash.match(/3d/),
+  minSide: window.location.hash.match(/3d/) ? 10 : 30,
+  sqrt1by3: Math.sqrt(1 / 3),
+  sqrt3by8: Math.sqrt(3 / 8),
+  sqrt1by12: Math.sqrt(1 / 12),
+  sqrt1by24: Math.sqrt(1 / 24),
+  fillStyle: "rgba(102,102,153,0.5)",
+  rotationPerDelta: Math.PI / 360, // half degree per 1 delta wheel-event
+  pixelsBetweenEyes: 220,
+  real3DSide: 120,
+  parallaxAngle: 0.04 //radians
 };
 
-window.onload = function() {
-  const canvas  = document.body.appendChild(document.createElement('canvas'));
+window.onload = function () {
+  const canvas = document.body.appendChild(document.createElement('canvas'));
 
-  const dpr     = window.devicePixelRatio || 1;
-  const height  = window.innerHeight;
-  const width   = window.innerWidth;
+  const dpr = window.devicePixelRatio || 1;
+  const height = window.innerHeight;
+  const width = window.innerWidth;
 
-  canvas.height       = height * dpr;
-  canvas.width        = width * dpr;
+  canvas.height = height * dpr;
+  canvas.width = width * dpr;
   canvas.style.height = `${height}px`;
-  canvas.style.width  = `${width}px`;
+  canvas.style.width = `${width}px`;
 
-  const ctx       = canvas.getContext("2d");
-  ctx.fillStyle   = Sierpinski.fillStyle;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = Sierpinski.fillStyle;
   ctx.scale(dpr, dpr);
 
-  const side  = Sierpinski.showReal3D ? Sierpinski.real3DSide : Math.min(height, width) / 1.5;
-  const x     = width / 2;
-  const y     = height / 2;
-  const z     = 0;
+  const side = Sierpinski.showReal3D ? Sierpinski.real3DSide : Math.min(height, width) / 1.5;
+  const x = width / 2;
+  const y = height / 2;
+  const z = 0;
 
   let x1 = x;
   let x2;
@@ -45,15 +45,15 @@ window.onload = function() {
 
   tree1 = new SierpinskiTree();
   tree1.draw(ctx, side,
-    {x: x1, y: y, z: z},
-    {x: 0, y: Sierpinski.showReal3D ? -Sierpinski.parallaxAngle/2 : 0, z: 0}
+    { x: x1, y: y, z: z },
+    { x: 0, y: Sierpinski.showReal3D ? -Sierpinski.parallaxAngle / 2 : 0, z: 0 }
   );
 
   if (Sierpinski.showReal3D) {
     tree2 = new SierpinskiTree();
     tree2.draw(ctx, side,
-      {x: x2, y: y, z: z},
-      {x: 0, y: Sierpinski.parallaxAngle/2, z: 0}
+      { x: x2, y: y, z: z },
+      { x: 0, y: Sierpinski.parallaxAngle / 2, z: 0 }
     );
   }
 
@@ -63,17 +63,17 @@ window.onload = function() {
     const thetaX = Sierpinski.rotationPerDelta * e.deltaY;
     const thetaY = Sierpinski.rotationPerDelta * e.deltaX;
 
-    tree1.draw(ctx, side, {x: x1, y: y, z: z}, {x: thetaX, y: thetaY, z: 0});
-    tree2 && tree2.draw(ctx, side, {x: x2, y: y, z: z}, {x: thetaX, y: thetaY, z: 0});
+    tree1.draw(ctx, side, { x: x1, y: y, z: z }, { x: thetaX, y: thetaY, z: 0 });
+    tree2 && tree2.draw(ctx, side, { x: x2, y: y, z: z }, { x: thetaX, y: thetaY, z: 0 });
   });
 }
 
 
 class SierpinskiTree {
   constructor() {
-    this.root       = new SierpinskiTreeNode();
-    this.root.tree  = this;
-    this.rotation   = {x: -Math.PI, y: Math.PI, z: 0};
+    this.root = new SierpinskiTreeNode();
+    this.root.tree = this;
+    this.rotation = { x: -Math.PI, y: Math.PI, z: 0 };
   }
 
   draw(ctx, side, pyramidCentre, rotation) {
@@ -87,17 +87,17 @@ class SierpinskiTree {
 
 class SierpinskiTreeNode {
   constructor(parent) {
-    this.parent     = parent;
-    this.tree       = this.parent ? this.parent.tree : null;
-    this.depth      = this.parent ? this.parent.depth + 1 : 0;
+    this.parent = parent;
+    this.tree = this.parent ? this.parent.tree : null;
+    this.depth = this.parent ? this.parent.depth + 1 : 0;
     this.childNodes = [];
   }
 
   draw(ctx, side, pyramidCentre, rotationCentre, rotation) {
     if (side > Sierpinski.minSide) {
-      const pyramid = new Pyramid(side/2, pyramidCentre);
+      const pyramid = new Pyramid(side / 2, pyramidCentre);
       this.reproduce();
-      this.childNodes.forEach((c, i) => c.draw(ctx, side/2, pyramid.vectors[i], rotationCentre, rotation));
+      this.childNodes.forEach((c, i) => c.draw(ctx, side / 2, pyramid.vectors[i], rotationCentre, rotation));
     } else {
       this.removeChildren();
       new Pyramid(side, pyramidCentre).moveCentreTo(rotationCentre).rotate(rotation).draw(ctx);
@@ -125,10 +125,10 @@ class Pyramid {
     const l4 = side * Sierpinski.sqrt1by3;
 
     this.vectors = [
-      [ centre.x - side/2, centre.y - l1, centre.z - l3 ],
-      [ centre.x + side/2, centre.y - l1, centre.z - l3 ],
-      [ centre.x, centre.y - l1, centre.z + l4 ],
-      [ centre.x, centre.y + l2, centre.z ]
+      [centre.x - side / 2, centre.y - l1, centre.z - l3],
+      [centre.x + side / 2, centre.y - l1, centre.z - l3],
+      [centre.x, centre.y - l1, centre.z + l4],
+      [centre.x, centre.y + l2, centre.z]
     ].map(arrow => new Vector([centre.x, centre.y, centre.z], arrow));
   }
 
@@ -146,8 +146,8 @@ class Pyramid {
     this.vectors.forEach((v, i, arr) => {
       ctx.beginPath();
       ctx.moveTo(v.x, v.y);
-      ctx.lineTo(arr[(i+1) % 4].x, arr[(i+1) % 4].y);
-      ctx.lineTo(arr[(i+2) % 4].x, arr[(i+2) % 4].y);
+      ctx.lineTo(arr[(i + 1) % 4].x, arr[(i + 1) % 4].y);
+      ctx.lineTo(arr[(i + 2) % 4].x, arr[(i + 2) % 4].y);
       ctx.lineTo(v.x, v.y);
       ctx.fill();
     });
@@ -159,7 +159,7 @@ class Pyramid {
 class Vector {
   constructor(centre, arrow) {
     this.centre = centre;
-    this.arrow  = arrow;
+    this.arrow = arrow;
   }
 
   get x() {
@@ -184,7 +184,7 @@ class Vector {
       const dimension = ((theta, a, b) => {
         const s = Math.sin(theta);
         const c = Math.cos(theta);
-        return [a*c - b*s, a*s + b*c];
+        return [a * c - b * s, a * s + b * c];
       })(theta, this.arrow[(i + 1) % 3] - this.centre[(i + 1) % 3], this.arrow[(i + 2) % 3] - this.centre[(i + 2) % 3]);
       this.arrow[(i + 1) % 3] = this.centre[(i + 1) % 3] + dimension[0];
       this.arrow[(i + 2) % 3] = this.centre[(i + 2) % 3] + dimension[1];
